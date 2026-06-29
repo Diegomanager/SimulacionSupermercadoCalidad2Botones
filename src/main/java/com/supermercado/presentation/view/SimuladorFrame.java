@@ -317,12 +317,12 @@ public class SimuladorFrame extends JFrame {
         actualizarEstadisticasDirecto(estadisticas);
     }
 
-    public void agregarLog(String mensaje) {
+        public void agregarLog(String mensaje) {
         SwingUtilities.invokeLater(() -> {
-            String ts = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-            areaLog.append("[" + ts + "] " + mensaje + "\n");
+            areaLog.append(mensaje + "\n");
             areaLog.setCaretPosition(areaLog.getDocument().getLength());
         });
+    });
     }
 
     public void mostrarMensaje(String msg) {

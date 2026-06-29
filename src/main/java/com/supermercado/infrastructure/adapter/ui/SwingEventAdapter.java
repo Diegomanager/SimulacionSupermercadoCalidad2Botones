@@ -5,60 +5,37 @@ import com.supermercado.application.port.ILogService;
 import com.supermercado.domain.event.*;
 import com.supermercado.infrastructure.adapter.event.EventBusAdapter;
 import com.supermercado.presentation.view.SimuladorFrame;
-
 import javax.swing.SwingUtilities;
 
-/**
- * Adaptador de infraestructura: escucha eventos del dominio
- * y actualiza la interfaz gráfica de usuario.
- *
- * Responsabilidad única: traducir eventos de dominio a
- * llamadas sobre la vista Swing, siempre en el EDT.
- *
- * No contiene lógica de negocio.
- * No usa System.out.println (usa ILogService).
- */
 public class SwingEventAdapter {
 
     private final SimuladorFrame  frame;
     private final EventBusAdapter eventBus;
     private final ILogService     logService;
 
-    public SwingEventAdapter(
-            SimuladorFrame frame,
-            EventBusAdapter eventBus,
-            ILogService logService) {
-        this.frame      = frame;
-        this.eventBus   = eventBus;
+    public SwingEventAdapter(SimuladorFrame frame, EventBusAdapter eventBus, ILogService logService) {
+        this.frame = frame;
+        this.eventBus = eventBus;
         this.logService = logService;
         suscribirEventos();
-        logService.debug("SwingEventAdapter suscrito a eventos del dominio");
+        logService.debug("SwingEventAdapter suscrito");
     }
-
-    // ============================================================
-    // Suscripciones - un método por evento
-    // ============================================================
 
     private void suscribirEventos() {
-        eventBus.subscribe(ClienteGeneradoEvent.class,          this::onClienteGenerado);
-        eventBus.subscribe(CajaActualizadaEvent.class,          this::onCajaActualizada);
+        eventBus.subscribe(ClienteGeneradoEvent.class, this::onClienteGenerado);
+        eventBus.subscribe(CajaActualizadaEvent.class, this::onCajaActualizada);
         eventBus.subscribe(EstadisticasActualizadasEvent.class, this::onEstadisticasActualizadas);
-        eventBus.subscribe(SimulacionFinalizadaEvent.class,     this::onSimulacionFinalizada);
-        eventBus.subscribe(SimulacionPausadaEvent.class,        this::onSimulacionPausada);
-        eventBus.subscribe(SimulacionReanudadaEvent.class,      this::onSimulacionReanudada);
-        eventBus.subscribe(SimulacionDetenidaEvent.class,       this::onSimulacionDetenida);
-        eventBus.subscribe(SimulacionIniciadaEvent.class,       this::onSimulacionIniciada);
+        eventBus.subscribe(SimulacionFinalizadaEvent.class, this::onSimulacionFinalizada);
+        eventBus.subscribe(SimulacionPausadaEvent.class, this::onSimulacionPausada);
+        eventBus.subscribe(SimulacionReanudadaEvent.class, this::onSimulacionReanudada);
+        eventBus.subscribe(SimulacionDetenidaEvent.class, this::onSimulacionDetenida);
+        eventBus.subscribe(SimulacionIniciadaEvent.class, this::onSimulacionIniciada);
     }
-
-    // ============================================================
-    // Manejadores de eventos - todos en el EDT via invokeLater
-    // ============================================================
 
     private void onClienteGenerado(ClienteGeneradoEvent event) {
         SwingUtilities.invokeLater(() ->
             frame.agregarLog("[" + event.getHora() + "] Cliente-" +
-                event.getCliente().getId() +
-                " generado | Artículos: " +
+                event.getCliente().getId() + " | Artículos: " +
                 event.getCliente().getCantidadArticulos())
         );
     }
@@ -66,11 +43,8 @@ public class SwingEventAdapter {
     private void onCajaActualizada(CajaActualizadaEvent event) {
         SwingUtilities.invokeLater(() ->
             frame.actualizarCajaConTipo(
-                event.getNumCaja(),
-                event.getEstado(),
-                event.getCola(),
-                event.getClienteInfo(),
-                event.getTipo())
+                event.getNumCaja(), event.getEstado(),
+                event.getCola(), event.getClienteInfo(), event.getTipo())
         );
     }
 
@@ -81,7 +55,7 @@ public class SwingEventAdapter {
     }
 
     private void onSimulacionFinalizada(SimulacionFinalizadaEvent event) {
-        logService.debug("Evento SimulacionFinalizada recibido");
+        logService.debug("Evento Finalizada recibido");
         SwingUtilities.invokeLater(() -> {
             EstadisticasDTO stats = event.getEstadisticas();
             frame.actualizarEstadisticas(stats);
@@ -103,7 +77,6 @@ public class SwingEventAdapter {
     }
 
     private void onSimulacionIniciada(SimulacionIniciadaEvent event) {
-        logService.debug("Evento SimulacionIniciada recibido");
         SwingUtilities.invokeLater(() -> {
             frame.habilitarBotonIniciar(false);
             frame.habilitarBotonDetener(true);
@@ -111,7 +84,6 @@ public class SwingEventAdapter {
     }
 
     private void onSimulacionPausada(SimulacionPausadaEvent event) {
-        logService.debug("Evento SimulacionPausada recibido");
         SwingUtilities.invokeLater(() -> {
             frame.cambiarEstadoPausa(true);
             frame.agregarLog("=== SIMULACION PAUSADA ===");
@@ -119,7 +91,6 @@ public class SwingEventAdapter {
     }
 
     private void onSimulacionReanudada(SimulacionReanudadaEvent event) {
-        logService.debug("Evento SimulacionReanudada recibido");
         SwingUtilities.invokeLater(() -> {
             frame.cambiarEstadoPausa(false);
             frame.agregarLog("=== SIMULACION REANUDADA ===");
@@ -127,7 +98,6 @@ public class SwingEventAdapter {
     }
 
     private void onSimulacionDetenida(SimulacionDetenidaEvent event) {
-        logService.debug("Evento SimulacionDetenida recibido");
         SwingUtilities.invokeLater(() -> {
             frame.habilitarBotonIniciar(true);
             frame.habilitarBotonDetener(false);

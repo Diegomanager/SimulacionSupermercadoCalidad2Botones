@@ -23,7 +23,6 @@ public class SimuladorService {
 
         for (Caja caja : cajas) {
             if (caja.getEstado() == EstadoCaja.DETENIDA) continue;
-            // Cliente rápido solo a cajas rápidas, normal a normales
             boolean tipoCoincide = (cliente.esRapido() && caja.esRapida()) ||
                                    (!cliente.esRapido() && !caja.esRapida());
             if (!tipoCoincide) continue;
@@ -37,7 +36,7 @@ public class SimuladorService {
         if (mejorCaja != null) {
             mejorCaja.agregarCliente(cliente);
         } else {
-            // Cliente perdido por falta de caja adecuada (se registra en log del motor)
+            // Cliente perdido: no hay caja del tipo adecuado disponible
             System.err.println("Cliente " + cliente.getId() + " perdido: no hay caja " +
                 (cliente.esRapido() ? "rápida" : "normal") + " disponible");
         }
